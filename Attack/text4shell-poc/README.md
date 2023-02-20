@@ -4,25 +4,19 @@ This is a vulnerable application developed as a Proof of Concept for the vulnera
 # Vulnerable app set-up
 You can use Docker to be able to run this PoC:
 
-1. Clone the git repo
-```
-   git clone https://github.com/securekomodo/text4shell-poc.git
-   cd text4shell-poc
-```
-
 1. Docker build
 
 ```
    docker build --tag=text4shell-poc .
 ```
 
-1. Docker run
+2. Docker run
 
 ```
    docker run -p 80:8080 text4shell-poc
 ```
 
-1. Test the vulnerable app
+3. Test the vulnerable app
 
 ```
    http://localhost/
