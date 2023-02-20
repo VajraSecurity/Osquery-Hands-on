@@ -95,7 +95,10 @@ SELECT pid, name, path FROM processes LIMIT 1;
 
 ## Demo
 
-- ### [Text4Shell](/Attack/text4shell-poc/README.md) 
+- ### [Text4Shell](/Attack/text4shell-poc/README.md)
+- ### [Apt-spawn-shell](/Attack/Apt-spawn-shell/README.MD)
+- ### [Docker-attacks](/Attack/Docker-attacks/README.MD)
+
 
 
 ## FAQ
