@@ -15,6 +15,7 @@ Welcome to the workshop.
   - [Index](#index)
   - [Introduction to Osquery](#introduction-to-osquery)
   - [Prerequisites](#prerequisites)
+  - [Run Osquery](#run-osquery)
   - [Basic Commands](#basic-commands)
   - [Osqueryi](#osqueryi)
   - [Osqueryd](#osqueryd)
@@ -50,6 +51,13 @@ Welcome to the workshop.
 - [Osquery](https://drive.google.com/drive/folders/1kV8moPmKZDxnoHKJCwVHcVmI-6uYYeW9?usp=sharing)  
   <sup>Our Build</sup>
 - Optional: [VsCode](https://code.visualstudio.com/) ([download](https://code.visualstudio.com/Download))
+
+
+## Run Osquery
+
+```bash
+  sudo ./osqueryd -S --disable_events=false --enable_bpf_events=true
+```
 
 ## Basic Commands
 ```bash
