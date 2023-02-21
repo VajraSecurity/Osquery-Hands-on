@@ -56,7 +56,7 @@ Welcome to the workshop.
 ## Run Osquery
 
 ```bash
-  sudo ./osqueryd -S --disable_events=false --enable_bpf_events=true
+  sudo ./osqueryd -S --disable_events=false --enable_bpf_events=true --enable_bpf_file_events=true --config_path /etc/osquery/fim.conf
 ```
 
 ## Basic Commands
