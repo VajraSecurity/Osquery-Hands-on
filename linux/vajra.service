@@ -1,0 +1,9 @@
+[Unit]
+Description=Vajra EDR log collection service.
+
+[Service]
+Type=simple
+ExecStart=/bin/bash /usr/bin/vajra.sh
+
+[Install]
+WantedBy=multi-user.target
