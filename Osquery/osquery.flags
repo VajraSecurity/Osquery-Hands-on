@@ -1,5 +1,5 @@
 --config_plugin=tls
---config_path=C:\Program Files\osquery\osquery.conf
+# --config_path=C:\Program Files\osquery\osquery2.conf
 --enable_monitor=false
 --events_expiry=3600
 --events_max=2500
@@ -38,21 +38,6 @@
 --audit_persist=true
 --audit_allow_process_events=true
 --audit_allow_sockets=true
---disable_distributed=false
---distributed_plugin=tls
---distributed_tls_read_endpoint=/read
---distributed_tls_write_endpoint=/write
---distributed_interval=10
---distributed_tls_max_attempts=3
-
---config_path=C:\Program Files\osquery\osquery.conf
 --database_path=C:\Program Files\osquery\osquery.db
-
 --disable_extensions=false
---extensions_timeout=10
---extensions_interval=10
---disable_watchdog=false
---watchdog_level=1
---watchdog_utilization_limit=2
 --verbose
---allow_unsafe
