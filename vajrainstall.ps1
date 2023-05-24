@@ -60,7 +60,7 @@ $kServiceName = "osqueryd"
 $kServiceDescription = "osquery daemon service"
 $kServiceBinaryPath = (Join-Path "$Env:ProgramFiles\osquery\osqueryd\" "osqueryd.exe")
 $welManifestPath = (Join-Path "$Env:ProgramFiles\osquery\" "osquery.man")
-$startupArgs = ("--flagfile=`"$Env:ProgramFiles\osquery\osquery.flags`" --config_path=`"$Env:ProgramFiles\osquery\osquery.conf`"")
+$startupArgs = ("--flagfile=`"$Env:ProgramFiles\osquery\osquery.flags`"")
 
 function DownloadFileFromUrl {		
 	param([string]$fileDownloadUrl, [string]$file)
