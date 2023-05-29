@@ -3,7 +3,7 @@ Description=Vajra Event Processor service.
 
 [Service]
 Type=simple
-ExecStart=/bin/bash /home/sablearjun/vajra-fleet/cmake-build-debug/event_processor
+ExecStart=/bin/bash /usr/bin/event.sh
 Restart=always
 RestartSec=3
 
