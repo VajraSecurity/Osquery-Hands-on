@@ -1,1 +1,1 @@
-/home/sablearjun/vajra-fleet/cmake-build-debug/rule_engine.sh
+/home/sablearjun/vajra-fleet/cmake-build-debug/rule_engine
