@@ -3,7 +3,7 @@ Description=Vajra Rule Engine service.
 
 [Service]
 Type=simple
-ExecStart=/bin/bash /home/sablearjun/vajra-fleet/cmake-build-debug/rule_engine
+ExecStart=/bin/bash /usr/bin/rule.sh
 Restart=always
 RestartSec=3
 
