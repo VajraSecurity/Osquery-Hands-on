@@ -3,7 +3,7 @@ Description=Vajra Fleet Server service.
 
 [Service]
 Type=simple
-ExecStart=/bin/bash /home/sablearjun/vajra-fleet/cmake-build-debug/fleet_server
+ExecStart=/bin/bash /usr/bin/fleet.sh
 Restart=always
 RestartSec=3
 
