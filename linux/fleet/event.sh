@@ -1,2 +1,3 @@
 #!/bin/bash
-/home/sablearjun/vajra-fleet/cmake-build-debug/event_processor
+cd /home/sablearjun/vajra-fleet/cmake-build-debug/
+./event_processor
