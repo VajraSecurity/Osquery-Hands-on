@@ -1,2 +1,3 @@
 #!/bin/bash
-/home/sablearjun/vajra-fleet/cmake-build-debug/fleetapi
+cd /home/sablearjun/vajra-fleet/cmake-build-debug/
+./fleetapi
