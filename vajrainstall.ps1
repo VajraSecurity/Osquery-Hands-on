@@ -2,21 +2,35 @@ param(
   [switch] $help = $false,
   [switch] $windows_event_log = $false,
   [switch] $filesystem = $false,
-  [switch] $uninstall = $false
+  [switch] $uninstall = $false,
+  [switch] $bits32 = $false,
+  [switch] $offline = $false
 )
 
-
+# OS Details
+$os = Get-WmiObject -Class Win32_OperatingSystem
+$majorVersion = [int]($os.Version.Split('.')[0])
+$architecture = [int]($os.OSArchitecture.Split('-')[0])
+if ($architecture -eq "32")
+{
+	$bits32 = $true
+}
 # Globals
 $scriptVersion = '1.0.0.0'
-$extnDownloadUrl = 'https://github.com/eclecticiq/osq-ext-bin/raw/master/plgx_win_extension.ext.exe'
-$osquerydDownloadUrl = 'https://github.com/VajraSecurity/Osquery-Hands-on/raw/main/Osquery/osqueryd.exe'
+if ($bits32) {
+	$osquerydDownloadUrl = 'https://github.com/VajraSecurity/vajra-client/raw/main/windows/x86/osqueryd.exe'
+	$osqueryFlagsDownloadUrl = 'https://github.com/VajraSecurity/vajra-client/raw/main/windows/x86/osquery.flags'
+	$vcredistDownloadUrl = 'https://github.com/VajraSecurity/vajra-client/raw/main/windows/x86/vc_redist.x86.exe'
+	$boostDllDownloadUrl = 'https://github.com/VajraSecurity/vajra-client/raw/main/windows/x86/boost_context-vc140-mt-x32-1_66.dll'
+}
+else {
+	$osquerydDownloadUrl = 'https://github.com/VajraSecurity/Osquery-Hands-on/raw/main/Osquery/osqueryd.exe'
+	$osqueryFlagsDownloadUrl = 'https://github.com/VajraSecurity/Osquery-Hands-on/raw/main/Osquery/osquery.flags'
+	$extnDownloadUrl = 'https://github.com/VajraSecurity/Osquery-Hands-on/raw/main/Osquery/plgx_win_extension.ext.exe'
+}
 $osqueryConfDownloadUrl = 'https://github.com/VajraSecurity/Osquery-Hands-on/raw/main/Osquery/osquery.conf'
-# $osqueryEvtloggerFlagsDownloadUrl = 'https://github.com/VajraSecurity/Osquery-Hands-on/raw/main/Osquery/osquery_evtlogger.flags'
-# $osqueryFsloggerFlagsDownloadUrl = 'https://github.com/VajraSecurity/Osquery-Hands-on/raw/main/Osquery/osquery_fslogger.flags'
 $osqueryEnrollmentSecretDownloadUrl = 'https://github.com/VajraSecurity/Osquery-Hands-on/raw/main/Osquery/enrollment_secret.txt'
 $osqueryCertDownloadUrl = 'https://github.com/VajraSecurity/Osquery-Hands-on/raw/main/Osquery/certs/cert.pem'
-$osqueryEvtloggerFlagsDownloadUrl = 'https://github.com/VajraSecurity/Osquery-Hands-on/raw/main/Osquery/osquery.flags'
-$osqueryFsloggerFlagsDownloadUrl = 'https://github.com/VajraSecurity/Osquery-Hands-on/raw/main/Osquery/osquery.flags'
 $osqueryManifestDownloadUrl = 'https://github.com/VajraSecurity/Osquery-Hands-on/raw/main/Osquery/osquery.man'
 $extnLoadDownloadUrl = 'https://github.com/VajraSecurity/Osquery-Hands-on/raw/main/Osquery/extensions.load'
 
@@ -34,14 +48,27 @@ $osqueryPack10Url = 'https://github.com/VajraSecurity/Osquery-Hands-on/raw/main/
 
 
 $ExtnFilename = 'plgx_win_extension.ext.exe'
-$OsquerydFilename = 'osqueryd.exe'
+if ($bits32) {
+	if (-not (Test-Path -Path "$pwd\x86")) {
+		# Folder does not exist, create it
+		New-Item -ItemType "directory" -Path "$pwd\x86" | Out-Null
+	}
+	$OsquerydFilename = 'x86\osqueryd.exe'
+}
+if (!$bits32) {
+	if (-not (Test-Path -Path "$pwd\x64")) {
+		# Folder does not exist, create it
+		New-Item -ItemType "directory" -Path "$pwd\x64" | Out-Null
+	}
+	$OsquerydFilename = 'x64\osqueryd.exe'
+}
 $OsqueryConfFilename = 'osquery.conf'
-$OsqueryEvtloggerFlagsFilename = 'osquery_evtlogger.flags'
-$OsqueryFsloggerFlagsFilename = 'osquery_fslogger.flags'
+$OsqueryFlagsFilename = 'osquery.flags'
 $OsqueryExtnLoadFilename = 'extensions.load'
 $OsqueryCertFilename = 'cert.pem'
 $OsqueryEnrollmentSecretFilename = 'enrollment_secret.txt'
-
+$vcredistFileName = 'vc_redist.x86.exe'
+$boostDllFileName = 'boost_context-vc140-mt-x32-1_66.dll'
 $OsqueryManifestFilename = 'osquery.man'
 $OsqueryPackFile1 = 'hardware-monitoring.conf'
 $OsqueryPackFile2 = 'incident-response.conf'
@@ -88,16 +115,20 @@ function DownloadFileFromUrl {
 }
 
 function DownloadFiles {
-	DownloadFileFromUrl $extnDownloadUrl $ExtnFilename
 	DownloadFileFromUrl $osquerydDownloadUrl $OsquerydFilename
 	DownloadFileFromUrl $osqueryConfDownloadUrl $OsqueryConfFilename
-	DownloadFileFromUrl $osqueryEvtloggerFlagsDownloadUrl $OsqueryEvtloggerFlagsFilename
-	DownloadFileFromUrl $osqueryFsloggerFlagsDownloadUrl $OsqueryFsloggerFlagsFilename
-	DownloadFileFromUrl $osqueryManifestDownloadUrl $OsqueryManifestFilename
-	DownloadFileFromUrl $extnLoadDownloadUrl $OsqueryExtnLoadFilename
+	DownloadFileFromUrl $osqueryFlagsDownloadUrl $OsqueryFlagsFilename
 	DownloadFileFromUrl $osqueryCertDownloadUrl $OsqueryCertFilename
 	DownloadFileFromUrl $osqueryEnrollmentSecretDownloadUrl $OsqueryEnrollmentSecretFilename
-	
+	if ($bits32) {
+		DownloadFileFromUrl $vcredistDownloadUrl $vcredistFileName
+		DownloadFileFromUrl $boostDllDownloadUrl $boostDllFileName
+	}
+	if (!$bits32) {
+		DownloadFileFromUrl $extnDownloadUrl $ExtnFilename
+		DownloadFileFromUrl $osqueryManifestDownloadUrl $OsqueryManifestFilename
+		DownloadFileFromUrl $extnLoadDownloadUrl $OsqueryExtnLoadFilename
+	}
 	DownloadFileFromUrl $osqueryPack1Url $OsqueryPackFile1
 	DownloadFileFromUrl $osqueryPack2Url $OsqueryPackFile2
 	DownloadFileFromUrl $osqueryPack3Url $OsqueryPackFile3
@@ -120,12 +151,14 @@ function StartOsqueryService {
 				-StartupType Automatic
 	Write-Host "[+] Installed '$kServiceName' system service." -foregroundcolor Cyan
 	
-	wevtutil im $welManifestPath
-    if ($?) {
-      Write-Host "[+] The Windows Event Log manifest has been successfully installed." -foregroundcolor Cyan
-    } else {
-      Write-Host "[-] Failed to install the Windows Event Log manifest." -foregroundcolor RED
-    }
+	if (!$bits32) {
+		wevtutil im $welManifestPath
+		if ($?) {
+		Write-Host "[+] The Windows Event Log manifest has been successfully installed." -foregroundcolor Cyan
+		} else {
+		Write-Host "[-] Failed to install the Windows Event Log manifest." -foregroundcolor RED
+		}
+	}
 
     $ServiceObj = Get-Service -Name $kServiceName
 
@@ -136,7 +169,6 @@ function StartOsqueryService {
     $ServiceObj.Refresh()
     Write-Host -ForegroundColor YELLOW '[+] Osqueryd Service Status: ' $ServiceObj.Status 
 }
-
 
 function CheckOsqueryService {
 
@@ -180,7 +212,7 @@ function Test-IsAdmin {
 function CopyFile {
     param([string]$src, [string]$dest)
 
-    Write-Host -ForegroundColor Yellow "[+] Copying $src to $dest."
+    # Write-Host -ForegroundColor Yellow "[+] Copying $src to $dest."
     Copy-Item -Path "$src" -Destination "$dest" -Force
 }
 
@@ -190,26 +222,32 @@ function CopyFilesToInstalldir {
 	New-Item -Path "${Env:ProgramFiles}\osquery\packs" -ItemType Directory
 	New-Item -Path "${Env:ProgramFiles}\osquery\log" -ItemType Directory
 	New-Item -Path "${Env:ProgramFiles}\osquery\certs" -ItemType Directory
-	
-	CopyFile "$pwd\$ExtnFilename" "${Env:ProgramFiles}\osquery\$ExtnFilename"
-	CopyFile "$pwd\$OsquerydFilename" "${Env:ProgramFiles}\osquery\osqueryd\$OsquerydFilename"
+
+	CopyFile "$pwd\$OsquerydFilename" "${Env:ProgramFiles}\osquery\osqueryd\osqueryd.exe"
 	CopyFile "$pwd\$OsqueryConfFilename" "${Env:ProgramFiles}\osquery\$OsqueryConfFilename"
 	CopyFile "$pwd\$OsqueryCertFilename" "${Env:ProgramFiles}\osquery\certs\$OsqueryCertFilename"
 	CopyFile "$pwd\$OsqueryEnrollmentSecretFilename" "${Env:ProgramFiles}\osquery\$OsqueryEnrollmentSecretFilename"
-	
+	if ($architecture -eq "64") {
+		CopyFile "$pwd\x64\$OsqueryFlagsFilename" "${Env:ProgramFiles}\osquery\osquery.flags"
+	}
+	else{
+		CopyFile "$pwd\x86\$OsqueryFlagsFilename" "${Env:ProgramFiles}\osquery\osquery.flags"
+	}
+
 	#check what logger option was chosen for install then copy flags file accordingly
-	if($windows_event_log){
-		CopyFile "$pwd\$OsqueryEvtloggerFlagsFilename" "${Env:ProgramFiles}\osquery\osquery.flags"
-	} elseif($filesystem) {
-		CopyFile "$pwd\$OsqueryFsloggerFlagsFilename" "${Env:ProgramFiles}\osquery\osquery.flags"
-	} else {
-		Write-Host -ForegroundColor RED '[-] We should not reach here. Script will abort the installation now!!'
-        Exit -1
-	}	
-	
+	# if($windows_event_log){
+	# 	CopyFile "$pwd\$OsqueryEvtloggerFlagsFilename" "${Env:ProgramFiles}\osquery\osquery.flags"
+	# } elseif($filesystem) {
+	# 	CopyFile "$pwd\$OsqueryFsloggerFlagsFilename" "${Env:ProgramFiles}\osquery\osquery.flags"
+	# } else {
+	# 	Write-Host -ForegroundColor RED '[-] We should not reach here. Script will abort the installation now!!'
+    #     Exit -1
+	# }	
+	if (!$bits32) {
+	CopyFile "$pwd\$ExtnFilename" "${Env:ProgramFiles}\osquery\$ExtnFilename"
 	CopyFile "$pwd\$OsqueryManifestFilename" "${Env:ProgramFiles}\osquery\$OsqueryManifestFilename"	
 	CopyFile "$pwd\$OsqueryExtnLoadFilename" "${Env:ProgramFiles}\osquery\$OsqueryExtnLoadFilename"	
-	
+	}
 	CopyFile "$pwd\$OsqueryPackFile1" "${Env:ProgramFiles}\osquery\packs\$OsqueryPackFile1"
 	CopyFile "$pwd\$OsqueryPackFile2" "${Env:ProgramFiles}\osquery\packs\$OsqueryPackFile2"
 	CopyFile "$pwd\$OsqueryPackFile3" "${Env:ProgramFiles}\osquery\packs\$OsqueryPackFile3"
@@ -220,6 +258,25 @@ function CopyFilesToInstalldir {
 	CopyFile "$pwd\$OsqueryPackFile8" "${Env:ProgramFiles}\osquery\packs\$OsqueryPackFile8"
 	CopyFile "$pwd\$OsqueryPackFile9" "${Env:ProgramFiles}\osquery\packs\$OsqueryPackFile9"
 	CopyFile "$pwd\$OsqueryPackFile10" "${Env:ProgramFiles}\osquery\packs\$OsqueryPackFile10"
+}
+
+function InstallVcRedistRuntime {
+    if (Test-Path -Path $pwd\x86\$vcredistFileName) {
+        $Cmd = "$pwd\x86\$vcredistFileName" 
+		$arguments = "/install /passive /norestart"
+        Write-Host $Cmd
+        $Output = Start-Process -FilePath $Cmd -ArgumentList $arguments -Wait
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "[-] Failed to install VC Redistributables, Please Install Manualy. More details: $Output" -ForegroundColor Red
+        }
+        else {
+            Write-Host "[+] Successfully installed VC Redistributables" -ForegroundColor Green
+        }
+        Start-Sleep(5)
+    }
+    else {
+        Write-Host "[-] Failed to find $vcredistFileName for installation, Please Check Manually that VC Redsitributables are installed"
+    }
 }
 
 function Do-Help {
@@ -240,15 +297,28 @@ function Do-Help {
 }
 
 function CleanupDownloadedFiles {
-	Remove-Item "$pwd\$ExtnFilename"
-	Remove-Item "$pwd\$OsquerydFilename"
+	if ($bits32) {
+		Remove-Item -Path "$pwd\x86" -Recurse -Force -ErrorAction SilentlyContinue
+	}
+	if (!$bits32) {
+		Remove-Item -Path "$pwd\x64" -Recurse -Force -ErrorAction SilentlyContinue
+	}
+	# Remove-Item "$pwd\$OsquerydFilename"
 	Remove-Item "$pwd\$OsqueryConfFilename"
-	Remove-Item "$pwd\$OsqueryEvtloggerFlagsFilename"
-	Remove-Item "$pwd\$OsqueryFsloggerFlagsFilename"
-	Remove-Item "$pwd\$OsqueryManifestFilename"	
-	Remove-Item "$pwd\$OsqueryExtnLoadFilename"	
+	# Remove-Item "$pwd\$OsqueryEvtloggerFlagsFilename"
+	Remove-Item "$pwd\$OsqueryFlagsFilename"
+
 	Remove-Item "$pwd\$OsqueryCertFilename"	
 	Remove-Item "$pwd\$OsqueryEnrollmentSecretFilename"	
+	if ($bits32) {
+		Remove-Item "$pwd\$boostDllFileName"
+		Remove-Item "$pwd\$vcredistFileName"
+	}
+	if (!$bits32){
+		Remove-Item "$pwd\$ExtnFilename"
+		Remove-Item "$pwd\$OsqueryManifestFilename"	
+		Remove-Item "$pwd\$OsqueryExtnLoadFilename"	
+	}
 	Remove-Item "$pwd\$OsqueryPackFile1"
 	Remove-Item "$pwd\$OsqueryPackFile2"
 	Remove-Item "$pwd\$OsqueryPackFile3"
@@ -260,6 +330,31 @@ function CleanupDownloadedFiles {
 	Remove-Item "$pwd\$OsqueryPackFile9"
 	Remove-Item "$pwd\$OsqueryPackFile10"
 }
+
+function SetVariables {
+	$ipPattern = "^(\d{1,3}\.){3}\d{1,3}$"
+	$domainPattern = "^(?=.{1,253}\.?$)(?:(?!-|[^.]+_)[A-Za-z0-9-_]{1,63}(?<!-)\.?)+$"
+	$tls_hostname = Read-Host -Prompt "Enter your Server's domain name/IP:"
+
+	# Check the input and prompt again if invalid
+	while ([string]::IsNullOrEmpty($tls_hostname) -or ($tls_hostname -notmatch $ipPattern -and $tls_hostname -notmatch $domainPattern)) {
+		Write-Host "Invalid input. Please enter a valid IP or domain."
+		$tls_hostname = Read-Host -Prompt "Enter an IP or domain:"
+	}
+
+	$tls_hostname += ":1234"
+	$flagsContent = Get-Content -Path $OsqueryFlagsFilename
+	$newFlagsContent = $flagsContent -replace "--tls_hostname=.*", "--tls_hostname=$tls_hostname"
+	$newFlagsContent | Set-Content -Path $OsqueryFlagsFilename
+}
+
+
+function CheckOsVersion {
+	$os = Get-WmiObject -Class Win32_OperatingSystem
+	$majorVersion = [int]($os.Version.Split('.')[0])
+	$architecture = [int]($os.OSArchitecture.Split('-')[0])
+}
+
 
 function StopPlgxServices {
     # clean vast service
@@ -347,6 +442,7 @@ function UninstallAgent {
 		$osquerydService.Delete()
 		Write-Host "[+] System service '$kServiceName' uninstalled." -foregroundcolor Cyan
       
+		if ($architecture -eq "64") {
 		if (-not (Test-Path $welManifestPath)) {
 			Write-Host "[-] Failed to find the osquery Event Log manifest file! ($welManifestPath)" -ForegroundColor Red
 		} else {
@@ -358,12 +454,15 @@ function UninstallAgent {
 				Write-Host "[-] Failed to uninstall the Windows Event Log manifest." -foregroundcolor Red
 			}
 		}
+	}
     } else {
       Write-Host "'$kServiceName' is not an installed system service." -foregroundcolor Yellow
     }
 	
 	# stop and remove EIQ agent services
-	StopPlgxServices
+	if ($architecture -eq "64") {
+		StopPlgxServices
+	}
 	
 	#clean up all files and directories
 	CleanupInstalledFiles
@@ -394,18 +493,39 @@ function Main {
 		CheckOsqueryService
 
 		#verify EIQ agent service doesnt exist
-		CheckEiqAgentService
+		if (!$bits32) {
+			CheckEiqAgentService
+		}
 
 		# Download all files
-		DownloadFiles
+		if(!$offline){
+			if ($majorVersion -ne 7) {
+			DownloadFiles
+			}
+			else {
+				Write-Host -ForegroundColor Red "[+] ERROR: Windows 7 does not support TLS V1.2. Please try offline installer."
+				Write-Host -ForegroundColor Red "[+] Usage: ./vajrainstall.ps1 -offline"
+				Exit -1
+			}
+		}
 		
+		# Set server domain or IP
+		# SetVariables
+
 		# Copy files to install location
 		CopyFilesToInstalldir
 
+		# Install VC Redistributables
+		if ($bits32) {
+		InstallVcRedistRuntime
+		}
+		# Start Osquery service
 		StartOsqueryService
 		
-		CleanupDownloadedFiles
+		# Cleanup downloaded files
+		# CleanupDownloadedFiles
 		
+		# Completed
 		Write-Host -ForegroundColor Yellow "========================================================================"
 	}
 }
