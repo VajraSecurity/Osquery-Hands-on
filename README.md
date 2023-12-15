@@ -48,7 +48,7 @@ Welcome to the workshop.
 - [Docker](https://docs.docker.com/engine/install/)
 - [Osquery](https://osquery.io/downloads/official/5.7.0)  
   <sup>Official Build</sup>
-- [Osquery](https://drive.google.com/drive/folders/1kV8moPmKZDxnoHKJCwVHcVmI-6uYYeW9?usp=sharing)  
+- [Osquery](https://github.com/VajraSecurity/Osquery-Hands-on/blob/main/linux/osqueryd)  
   <sup>Our Custom Build</sup>
 - Optional: [VsCode](https://code.visualstudio.com/) ([download](https://code.visualstudio.com/Download))
 
