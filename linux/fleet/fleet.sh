@@ -1,3 +1,3 @@
 #!/bin/bash
-cd /home/$USER/vajra-fleet/cmake-build-debug/
-./fleet_server
+cd /home/$USER/VajraServer/cmake-build-debug/
+./vajra_server
