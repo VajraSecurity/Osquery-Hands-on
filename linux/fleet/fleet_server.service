@@ -1,5 +1,6 @@
 [Unit]
 Description=Vajra Fleet Server service.
+After=postgresql.service
 
 [Service]
 Type=simple
