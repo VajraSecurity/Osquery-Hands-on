@@ -1,5 +1,6 @@
 [Unit]
 Description=Vajra UI Backend service.
+After=postgresql.service
 
 [Service]
 Type=simple
