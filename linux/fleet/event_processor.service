@@ -1,6 +1,6 @@
 [Unit]
 Description=Vajra Event Processor service.
-
+After=postgresql.service
 [Service]
 Type=simple
 ExecStart=/bin/bash /usr/bin/event.sh
